@@ -12,6 +12,9 @@ import { MoveCursorStartOfLine } from "contexts/text/cursor/application/MoveCurs
 import { MoveCursorUp } from "contexts/text/cursor/application/MoveCursorUp.js";
 import { ReturnCursor } from "contexts/text/cursor/application/ReturnCursor.js";
 import { WriteCursor } from "contexts/text/cursor/application/WriteCursor.js";
+import { PersistBuffer } from "contexts/text/file/application/PersistBuffer.js";
+import { VisitFile } from "contexts/text/file/application/VisitFile.js";
+import { randomUUID } from "node:crypto";
 
 export interface Key {
   name: string;
@@ -107,6 +110,15 @@ export const DispatchBindingOnKeyboardEvent =
             if (!(await di.get<WriteCursor>("text.cursor.writeCursor")(" ")))
               break;
             await di.get<MoveCursorRight>("text.cursor.moveCursorRight")();
+            break;
+          case "C-o":
+            await di.get<VisitFile>("text.file.visitFile")(
+              randomUUID(),
+              "/home/javier/workspace/xk/quasar/biome.json"
+            );
+            break;
+          case "C-s":
+            await di.get<PersistBuffer>("text.file.persistBuffer")();
             break;
           default:
             if (key.length > 1) break;

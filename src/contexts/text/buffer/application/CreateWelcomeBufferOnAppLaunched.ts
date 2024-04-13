@@ -22,6 +22,9 @@ export const CreateWelcomeBufferOnAppLaunched = (
           "Press 'Ctrl + Q' to exit.",
         ],
         cursor: BufferCursor.init(),
+        readonly: true,
+        path: "",
+        isModified: false,
       });
     },
     subscribedTo: () => events,

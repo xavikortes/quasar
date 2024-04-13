@@ -4,8 +4,6 @@ import { KeyboardEvent } from "contexts/client/domain/KeyboardEvent.js";
 import { EventBus } from "contexts/shared/domain/EventBus.js";
 import { DependencyInjection } from "contexts/shared/infrastructure/DependencyInjection.js";
 import { DomainEventSubscribers } from "contexts/shared/infrastructure/DomainEventSubscribers.js";
-import { OpenBufferFromFile } from "contexts/text/buffer/application/OpenBufferFromFile.js";
-import { PersistBufferInFile } from "contexts/text/buffer/application/PersistBufferInFile.js";
 import "./di/index.js";
 
 const di = DependencyInjection();
@@ -34,13 +32,6 @@ while (true) {
     process.stdin.once("keypress", async (str, key) => {
       if (key.name === "q" && key.ctrl) {
         process.exit(0);
-      }
-
-      if (key.name === "o" && key.ctrl) {
-        di.get<OpenBufferFromFile>("text.buffer.fileOpener")();
-      }
-      if (key.name === "s" && key.ctrl) {
-        di.get<PersistBufferInFile>("text.buffer.filePersister")();
       }
 
       await eventBus.publish([

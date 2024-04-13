@@ -10,10 +10,11 @@ export const DrawContent = (
 
     if (!buffer) return;
 
+    const name = buffer.showName();
     const content = buffer.content.value;
     const position = buffer.cursor.getPosition();
 
-    await repository.draw(content, position);
+    await repository.draw(name, content, position);
   };
 };
 

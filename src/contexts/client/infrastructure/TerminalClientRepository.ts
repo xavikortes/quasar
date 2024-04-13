@@ -11,7 +11,7 @@ export const TerminalClientRepository = (): ClientRepository => {
     enableRawMode();
 
     process.on("exit", () => {
-      process.stdout.write(clearColors());
+      process.stdout.write(clearAll());
       process.stdout.write(clearScreen());
       disableRawMode();
     });
@@ -27,7 +27,10 @@ export const TerminalClientRepository = (): ClientRepository => {
 
   const setColors = () => `\x1b[48;5;${backgroundColor}m`;
   const invertColors = () => "\x1b[7m";
-  const clearColors = () => "\x1b[0m";
+
+  const bold = () => "\x1b[1m";
+
+  const clearAll = () => "\x1b[0m";
 
   const getSize = () => ({
     columns: process.stdout.columns,
@@ -52,18 +55,33 @@ export const TerminalClientRepository = (): ClientRepository => {
     return cmd;
   };
 
-  const statusBar = (position: Position) => {
+  const statusBar = (showName: string, position: Position) => {
     const size = getSize();
 
-    const statusMessage = ` ${appName} - Pos. ${position.y + 1}:${
-      position.x + 1
-    }`;
-    return statusMessage.padEnd(size.columns, " ");
+    let statusMessage = "";
+    let length = 0;
+
+    const add = (message: string, isCmd = false) => {
+      statusMessage += message;
+      if (isCmd) length += message.length;
+    };
+
+    add(bold(), true);
+    add(" ");
+    add(appName);
+    add(clearAll(), true);
+    add(invertColors(), true);
+    add(" - ");
+    add(showName);
+    add(" - ");
+    add(`Pos. ${position.y + 1}:${position.x + 1}`);
+
+    return statusMessage.padEnd(size.columns + length, " ");
   };
 
   return {
     init,
-    draw: async (content: string[], position: Position) => {
+    draw: async (showName: string, content: string[], position: Position) => {
       let cmd = "";
 
       cmd += clearScreen();
@@ -72,9 +90,9 @@ export const TerminalClientRepository = (): ClientRepository => {
       cmd += draw(content);
 
       cmd += invertColors();
-      cmd += statusBar(position);
+      cmd += statusBar(showName, position);
 
-      cmd += clearColors();
+      cmd += clearAll();
 
       const lineSize = content[position.y].length;
 

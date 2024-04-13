@@ -1,8 +1,6 @@
 import { CreateBuffer } from "contexts/text/buffer/application/CreateBuffer.js";
 import { CreateWelcomeBufferOnAppLaunched } from "contexts/text/buffer/application/CreateWelcomeBufferOnAppLaunched.js";
 import { FindBuffer } from "contexts/text/buffer/application/FindBuffer.js";
-import { OpenBufferFromFile } from "contexts/text/buffer/application/OpenBufferFromFile.js";
-import { PersistBufferInFile } from "contexts/text/buffer/application/PersistBufferInFile.js";
 import { SearchAllBuffers } from "contexts/text/buffer/application/SearchAllBuffers.js";
 import { InMemoryBufferRepository } from "contexts/text/buffer/infrastructure/InMemoryBufferRepository.js";
 import { DeleteCursor } from "contexts/text/cursor/application/DeleteCursor.js";
@@ -16,6 +14,8 @@ import { MoveCursorStartOfLine } from "contexts/text/cursor/application/MoveCurs
 import { MoveCursorUp } from "contexts/text/cursor/application/MoveCursorUp.js";
 import { ReturnCursor } from "contexts/text/cursor/application/ReturnCursor.js";
 import { WriteCursor } from "contexts/text/cursor/application/WriteCursor.js";
+import { PersistBuffer } from "contexts/text/file/application/PersistBuffer.js";
+import { VisitFile } from "contexts/text/file/application/VisitFile.js";
 
 const textInfrastructure = {
   "text.buffer.repository": {
@@ -36,12 +36,12 @@ const textUseCases = {
     fn: SearchAllBuffers,
     args: ["@text.buffer.repository"],
   },
-  "text.buffer.fileOpener": {
-    fn: OpenBufferFromFile,
+  "text.file.visitFile": {
+    fn: VisitFile,
     args: ["@text.buffer.repository", "@app.shared.eventBus"],
   },
-  "text.buffer.filePersister": {
-    fn: PersistBufferInFile,
+  "text.file.persistBuffer": {
+    fn: PersistBuffer,
     args: ["@text.buffer.repository", "@app.shared.eventBus"],
   },
   "text.cursor.moveCursorDown": {

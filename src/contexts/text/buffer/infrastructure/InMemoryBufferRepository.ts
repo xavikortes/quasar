@@ -19,6 +19,16 @@ export const InMemoryBufferRepository = (): BufferRepository => {
       return buffer;
     },
 
+    async findByPath(path: string): Promise<Buffer | null> {
+      for (const buffer of memory.values()) {
+        if (buffer.path === path) {
+          return buffer;
+        }
+      }
+
+      return null;
+    },
+
     async save(buffer: Buffer): Promise<void> {
       memory.set(buffer.id.value, buffer);
       this.setCurrent(buffer);
@@ -26,10 +36,7 @@ export const InMemoryBufferRepository = (): BufferRepository => {
 
     async persist(buffer: Buffer): Promise<void> {
       await this.save(buffer);
-      await Bun.write(
-        "/home/javier/borrame_qsa.config.json",
-        buffer.content.value.join("\n")
-      );
+      await Bun.write(buffer.path, buffer.content.value.join("\n"));
     },
 
     async all(): Promise<Buffer[]> {

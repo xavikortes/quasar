@@ -1,5 +1,6 @@
 import { DomainEventSubscriber } from "contexts/shared/domain/DomainEventSubscriber.js";
 import { BufferCreatedEvent } from "contexts/text/buffer/domain/BufferCreatedEvent.js";
+import { BufferPersistedEvent } from "contexts/text/buffer/domain/BufferPersistedEvent.js";
 import { ContentChangedEvent } from "contexts/text/buffer/domain/ContentChangedEvent.js";
 import { CursorMovedEvent } from "contexts/text/buffer/domain/CursorMovedEvent.js";
 import { AppResizedEvent } from "../domain/AppResizedEvent.js";
@@ -9,6 +10,7 @@ type BufferUpdatedEvent =
   | CursorMovedEvent
   | ContentChangedEvent
   | BufferCreatedEvent
+  | BufferPersistedEvent
   | AppResizedEvent;
 
 export const DrawContentOnBufferUpdated = (
@@ -20,6 +22,7 @@ export const DrawContentOnBufferUpdated = (
     ContentChangedEvent,
     BufferCreatedEvent,
     AppResizedEvent,
+    BufferPersistedEvent,
   ];
 
   return {

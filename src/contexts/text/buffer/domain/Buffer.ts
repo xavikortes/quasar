@@ -5,6 +5,7 @@ import { BufferContent } from "./BufferContent.js";
 import { BufferCreatedEvent } from "./BufferCreatedEvent.js";
 import { BufferCursor } from "./BufferCursor.js";
 import { BufferName } from "./BufferName.js";
+import { BufferPersistedEvent } from "./BufferPersistedEvent.js";
 import { ContentChangedEvent } from "./ContentChangedEvent.js";
 import { CursorMovedEvent } from "./CursorMovedEvent.js";
 
@@ -14,6 +15,9 @@ export interface BufferProps {
   id: BufferId;
   name: BufferName;
   content: BufferContent;
+  path: string;
+  readonly: boolean;
+  isModified: boolean;
   cursor: BufferCursor;
 }
 
@@ -22,6 +26,9 @@ export class Buffer extends AggregateRoot {
   name: BufferName;
   content: BufferContent;
   cursor: BufferCursor;
+  path: string;
+  readonly: boolean;
+  isModified: boolean;
 
   constructor(props: BufferProps) {
     super(props);
@@ -30,6 +37,9 @@ export class Buffer extends AggregateRoot {
     this.name = props.name;
     this.content = props.content;
     this.cursor = props.cursor;
+    this.path = props.path;
+    this.readonly = props.readonly;
+    this.isModified = props.isModified;
   }
 
   length() {
@@ -64,11 +74,31 @@ export class Buffer extends AggregateRoot {
     return this.atLastLine() && this.atEndOfLine();
   }
 
+  showName() {
+    if (this.isModified) {
+      return `*${this.name.value}*`;
+    }
+    return this.name.value;
+  }
+
+  persist() {
+    this.isModified = false;
+
+    this.record(
+      new BufferPersistedEvent({
+        aggregateId: this.id.value,
+        attributes: this.toPrimitives(),
+      })
+    );
+  }
+
   joinNextLine() {
     const y = this.cursor.position.y;
 
     this.content.value[y] += this.content.value[y + 1];
     this.content.value = this.content.value.toSpliced(y + 1, 1);
+
+    this.isModified = true;
 
     this.record(
       new ContentChangedEvent({
@@ -85,6 +115,8 @@ export class Buffer extends AggregateRoot {
     this.content.value = this.content.value.toSpliced(y + 1, 0, line.slice(x));
     this.content.value[y] = line.slice(0, x);
 
+    this.isModified = true;
+
     this.record(
       new ContentChangedEvent({
         aggregateId: this.id.value,
@@ -98,6 +130,8 @@ export class Buffer extends AggregateRoot {
     this.content.value[y] =
       this.content.value[y].slice(0, x) + char + this.content.value[y].slice(x);
 
+    this.isModified = true;
+
     this.record(
       new ContentChangedEvent({
         aggregateId: this.id.value,
@@ -110,6 +144,8 @@ export class Buffer extends AggregateRoot {
     const { x, y } = this.cursor.position;
     this.content.value[y] =
       this.content.value[y].slice(0, x) + this.content.value[y].slice(x + 1);
+
+    this.isModified = true;
 
     this.record(
       new ContentChangedEvent({
@@ -152,6 +188,9 @@ export class Buffer extends AggregateRoot {
       name: new BufferName(primitives.name),
       content: new BufferContent(primitives.content),
       cursor: BufferCursor.fromPrimitves(primitives.cursor),
+      path: primitives.path,
+      readonly: primitives.readonly,
+      isModified: primitives.isModified,
     };
   }
 
@@ -165,6 +204,9 @@ export class Buffer extends AggregateRoot {
       name: this.name.value,
       content: this.content.toPrimitives(),
       cursor: this.cursor.toPrimitives(),
+      path: this.path,
+      readonly: this.readonly,
+      isModified: this.isModified,
     };
   }
 }
