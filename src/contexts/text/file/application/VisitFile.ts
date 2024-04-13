@@ -9,7 +9,10 @@ export const VisitFile = (repository: BufferRepository, eventBus: EventBus) => {
     const content = await f.text();
 
     const prevBuffer = await repository.findByPath(path);
-    if (prevBuffer) return false;
+    if (prevBuffer) {
+      await repository.setCurrent(prevBuffer);
+      return true;
+    }
 
     const buffer = Buffer.create({
       id: id,
