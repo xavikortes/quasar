@@ -1,4 +1,4 @@
-# fed
+# Quasar Editor
 
 To install dependencies:
 
