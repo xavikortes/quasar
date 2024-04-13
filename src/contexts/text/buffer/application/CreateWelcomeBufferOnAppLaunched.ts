@@ -1,4 +1,4 @@
-import { AppLaunchedEvent } from "contexts/shared/domain/AppLaunchedEvent.js";
+import { AppLaunchedEvent } from "contexts/client/domain/AppLaunchedEvent.js";
 import { DomainEventSubscriber } from "contexts/shared/domain/DomainEventSubscriber.js";
 import { BufferCursor } from "../domain/BufferCursor.js";
 import { CreateBuffer } from "./CreateBuffer.js";

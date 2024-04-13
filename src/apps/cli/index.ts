@@ -1,5 +1,6 @@
+import { AppLaunchedEvent } from "contexts/client/domain/AppLaunchedEvent.js";
+import { AppResizedEvent } from "contexts/client/domain/AppResizedEvent.js";
 import { KeyboardEvent } from "contexts/client/domain/KeyboardEvent.js";
-import { AppLaunchedEvent } from "contexts/shared/domain/AppLaunchedEvent.js";
 import { EventBus } from "contexts/shared/domain/EventBus.js";
 import { DependencyInjection } from "contexts/shared/infrastructure/DependencyInjection.js";
 import { DomainEventSubscribers } from "contexts/shared/infrastructure/DomainEventSubscribers.js";
@@ -18,6 +19,15 @@ await eventBus.publish([
     attributes: {},
   }),
 ]);
+
+process.stdout.on("resize", () => {
+  eventBus.publish([
+    new AppResizedEvent({
+      aggregateId: "app",
+      attributes: {},
+    }),
+  ]);
+});
 
 while (true) {
   await new Promise((resolve) => {

@@ -1,5 +1,5 @@
-import { AppLaunchedEvent } from "contexts/shared/domain/AppLaunchedEvent.js";
 import { DomainEventSubscriber } from "contexts/shared/domain/DomainEventSubscriber.js";
+import { AppLaunchedEvent } from "../domain/AppLaunchedEvent.js";
 import { InitClient } from "./InitClient.js";
 
 export const InitClientOnAppLaunched = (

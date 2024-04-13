@@ -1,6 +1,5 @@
 import { DispatchBindingOnKeyboardEvent } from "contexts/client/application/DispatchBindingOnKeyboardEvent.js";
 import { DrawContent } from "contexts/client/application/DrawContent.js";
-import { DrawContentOnBufferCreated } from "contexts/client/application/DrawContentOnBufferCreated.js";
 import { DrawContentOnBufferUpdated } from "contexts/client/application/DrawContentOnBufferUpdated.js";
 import { InitClient } from "contexts/client/application/InitClient.js";
 import { InitClientOnAppLaunched } from "contexts/client/application/InitClientOnAppLaunched.js";
@@ -31,11 +30,6 @@ const clientSubscribers = {
   },
   "app.client.DrawContentOnBufferUpdated": {
     fn: DrawContentOnBufferUpdated,
-    args: ["@app.client.contentDrawer"],
-    tags: ["eventSubscriber"],
-  },
-  "app.client.DrawContentOnBufferCreated": {
-    fn: DrawContentOnBufferCreated,
     args: ["@app.client.contentDrawer"],
     tags: ["eventSubscriber"],
   },
