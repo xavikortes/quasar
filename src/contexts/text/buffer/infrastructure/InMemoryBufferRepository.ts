@@ -28,7 +28,7 @@ export const InMemoryBufferRepository = (): BufferRepository => {
         memory.splice(bufferIndex, 1);
       }
 
-      memory.unshift(savedBuffer);
+      this.setCurrent(savedBuffer);
     },
 
     async persist(buffer: Buffer): Promise<void> {
@@ -44,6 +44,10 @@ export const InMemoryBufferRepository = (): BufferRepository => {
 
     async getCurrent(): Promise<Buffer | null> {
       return memory[0];
+    },
+
+    async setCurrent(buffer: Buffer): Promise<void> {
+      memory.unshift(buffer);
     },
   };
 };

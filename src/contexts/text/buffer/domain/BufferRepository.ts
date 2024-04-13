@@ -8,4 +8,5 @@ export interface BufferRepository {
   persist(buffer: Buffer): Promise<void>;
   all(): Promise<Buffer[]>;
   getCurrent(): Promise<Buffer | null>;
+  setCurrent(buffer: Buffer): Promise<void>;
 }
