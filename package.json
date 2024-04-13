@@ -1,0 +1,14 @@
+{
+  "name": "fed",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun src/apps/cli/index.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
