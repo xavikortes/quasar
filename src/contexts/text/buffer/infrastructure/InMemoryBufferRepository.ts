@@ -3,35 +3,32 @@ import { Buffer } from "../domain/Buffer.js";
 import { BufferRepository } from "../domain/BufferRepository.js";
 
 export const InMemoryBufferRepository = (): BufferRepository => {
-  const memory = new Map<string, Buffer>();
-  let current: Buffer | null = null;
+  const memory: Buffer[] = [];
 
   return {
-    current,
-
     async find(bufferId: BufferId): Promise<Buffer | null> {
-      const buffer = memory.get(bufferId.value);
+      const buffer = memory.find(
+        (buffer) => buffer.id.value === bufferId.value
+      );
 
-      if (!buffer) {
-        return null;
-      }
-
-      return buffer;
+      return buffer ?? null;
     },
 
     async findByPath(path: string): Promise<Buffer | null> {
-      for (const buffer of memory.values()) {
-        if (buffer.path === path) {
-          return buffer;
-        }
-      }
+      const buffer = memory.find((buffer) => buffer.path === path);
 
-      return null;
+      return buffer ?? null;
     },
 
-    async save(buffer: Buffer): Promise<void> {
-      memory.set(buffer.id.value, buffer);
-      this.setCurrent(buffer);
+    async save(savedBuffer: Buffer): Promise<void> {
+      const bufferIndex = memory.findIndex(
+        (buffer) => buffer.id.value === savedBuffer.id.value
+      );
+      if (bufferIndex !== -1) {
+        memory.splice(bufferIndex, 1);
+      }
+
+      memory.unshift(savedBuffer);
     },
 
     async persist(buffer: Buffer): Promise<void> {
@@ -46,11 +43,7 @@ export const InMemoryBufferRepository = (): BufferRepository => {
     },
 
     async getCurrent(): Promise<Buffer | null> {
-      return current;
-    },
-
-    async setCurrent(buffer: Buffer): Promise<void> {
-      current = buffer;
+      return memory[0];
     },
   };
 };
