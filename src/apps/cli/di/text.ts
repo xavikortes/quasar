@@ -2,6 +2,7 @@ import { CreateBuffer } from "contexts/text/buffer/application/CreateBuffer.js";
 import { CreateWelcomeBufferOnAppLaunched } from "contexts/text/buffer/application/CreateWelcomeBufferOnAppLaunched.js";
 import { FindBuffer } from "contexts/text/buffer/application/FindBuffer.js";
 import { SearchAllBuffers } from "contexts/text/buffer/application/SearchAllBuffers.js";
+import { ShowMessageOnBufferPersisted } from "contexts/text/buffer/application/ShowMessageOnBufferPersisted.js";
 import { InMemoryBufferRepository } from "contexts/text/buffer/infrastructure/InMemoryBufferRepository.js";
 import { DeleteCursor } from "contexts/text/cursor/application/DeleteCursor.js";
 import { MoveCursorDown } from "contexts/text/cursor/application/MoveCursorDown.js";
@@ -94,6 +95,11 @@ const textSubscribers = {
   "text.buffer.CreateWelcomeBufferOnAppLaunched": {
     fn: CreateWelcomeBufferOnAppLaunched,
     args: ["@text.buffer.creator"],
+    tags: ["eventSubscriber"],
+  },
+  "text.buffer.ShowMessageOnBufferPersisted": {
+    fn: ShowMessageOnBufferPersisted,
+    args: ["@app.client.showMessage"],
     tags: ["eventSubscriber"],
   },
 };

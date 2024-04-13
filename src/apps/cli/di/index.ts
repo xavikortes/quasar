@@ -7,6 +7,6 @@ const di = DependencyInjection();
 
 di.compile({
   ...sharedDependencies,
-  ...textDependencies,
   ...clientDependencies,
+  ...textDependencies,
 });

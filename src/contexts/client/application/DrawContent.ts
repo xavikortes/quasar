@@ -1,14 +1,12 @@
-import { BufferRepository } from "contexts/text/buffer/domain/BufferRepository.js";
+import {
+  Buffer,
+  BufferPrimitives,
+} from "contexts/text/buffer/domain/Buffer.js";
 import { ClientRepository } from "../domain/ClientRepository.js";
 
-export const DrawContent = (
-  repository: ClientRepository,
-  bufferRepository: BufferRepository
-) => {
-  return async () => {
-    const buffer = await bufferRepository.getCurrent();
-
-    if (!buffer) return;
+export const DrawContent = (repository: ClientRepository) => {
+  return async (bufferPrimitives: BufferPrimitives) => {
+    const buffer = Buffer.fromPrimitives(bufferPrimitives);
 
     const name = buffer.showName();
     const content = buffer.content.value;

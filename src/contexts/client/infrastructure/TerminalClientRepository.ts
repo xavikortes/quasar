@@ -1,8 +1,11 @@
 import { Position } from "contexts/shared/domain/Position.js";
 import { emitKeypressEvents } from "node:readline";
 import { ClientRepository } from "../domain/ClientRepository.js";
+import { ClientMessageRepository } from "./ClientMessageRepository.js";
 
-export const TerminalClientRepository = (): ClientRepository => {
+export const TerminalClientRepository = (
+  messageRepository: ClientMessageRepository
+): ClientRepository => {
   const appName = "QuasarEditor";
   const backgroundColor = 237;
 
@@ -34,7 +37,7 @@ export const TerminalClientRepository = (): ClientRepository => {
 
   const getSize = () => ({
     columns: process.stdout.columns,
-    rows: process.stdout.rows - 1,
+    rows: process.stdout.rows - 2,
   });
 
   const draw = (content: string[]) => {
@@ -56,7 +59,7 @@ export const TerminalClientRepository = (): ClientRepository => {
   };
 
   const statusBar = (showName: string, position: Position) => {
-    const size = getSize();
+    const { columns } = getSize();
 
     let statusMessage = "";
     let length = 0;
@@ -76,7 +79,19 @@ export const TerminalClientRepository = (): ClientRepository => {
     add(" - ");
     add(`Pos. ${position.y + 1}:${position.x + 1}`);
 
-    return statusMessage.padEnd(size.columns + length, " ");
+    return statusMessage.padEnd(columns + length, " ");
+  };
+
+  const messageBar = () => {
+    const { columns } = getSize();
+
+    const message = messageRepository.getMessage();
+
+    const content = message.padEnd(columns, " ");
+
+    messageRepository.clear();
+
+    return content;
   };
 
   return {
@@ -91,6 +106,10 @@ export const TerminalClientRepository = (): ClientRepository => {
 
       cmd += invertColors();
       cmd += statusBar(showName, position);
+
+      cmd += clearAll();
+      cmd += setColors();
+      cmd += messageBar();
 
       cmd += clearAll();
 

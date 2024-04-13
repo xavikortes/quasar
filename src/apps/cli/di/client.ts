@@ -3,11 +3,17 @@ import { DrawContent } from "contexts/client/application/DrawContent.js";
 import { DrawContentOnBufferUpdated } from "contexts/client/application/DrawContentOnBufferUpdated.js";
 import { InitClient } from "contexts/client/application/InitClient.js";
 import { InitClientOnAppLaunched } from "contexts/client/application/InitClientOnAppLaunched.js";
+import { ShowMessage } from "contexts/client/application/ShowMessage.js";
+import { ClientMessageRepository } from "contexts/client/infrastructure/ClientMessageRepository.js";
 import { TerminalClientRepository } from "contexts/client/infrastructure/TerminalClientRepository.js";
 
 const clientInfrastructure = {
+  "app.client.message": {
+    fn: ClientMessageRepository,
+  },
   "app.client.repository": {
     fn: TerminalClientRepository,
+    args: ["@app.client.message"],
   },
 };
 
@@ -18,7 +24,11 @@ const clientUseCases = {
   },
   "app.client.contentDrawer": {
     fn: DrawContent,
-    args: ["@app.client.repository", "@text.buffer.repository"],
+    args: ["@app.client.repository"],
+  },
+  "app.client.showMessage": {
+    fn: ShowMessage,
+    args: ["@app.client.message", "@app.shared.eventBus"],
   },
 };
 

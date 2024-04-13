@@ -1,4 +1,5 @@
 import { DomainEventSubscriber } from "contexts/shared/domain/DomainEventSubscriber.js";
+import { BufferPrimitives } from "contexts/text/buffer/domain/Buffer.js";
 import { BufferCreatedEvent } from "contexts/text/buffer/domain/BufferCreatedEvent.js";
 import { BufferPersistedEvent } from "contexts/text/buffer/domain/BufferPersistedEvent.js";
 import { ContentChangedEvent } from "contexts/text/buffer/domain/ContentChangedEvent.js";
@@ -26,8 +27,8 @@ export const DrawContentOnBufferUpdated = (
   ];
 
   return {
-    async on(_domainEvent: BufferUpdatedEvent) {
-      await contentDrawer();
+    async on(domainEvent: BufferUpdatedEvent) {
+      await contentDrawer(domainEvent.attributes as BufferPrimitives);
     },
     subscribedTo: () => events,
     name: () => name,
