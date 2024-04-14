@@ -54,7 +54,7 @@ export const TerminalClientRepository = (): ClientRepository => {
     const size = getSize();
     for (let i = 0; i < size.rows - content.length; i++) {
       cmd += clearLine();
-      cmd += `${" ".repeat(size.columns)}\n`;
+      cmd += "\n";
     }
 
     return cmd;

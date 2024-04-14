@@ -1,20 +1,7 @@
+import { TextMode } from "apps/cli/modes/TextMode.js";
 import { KeyboardEvent } from "contexts/client/domain/KeyboardEvent.js";
 import { DomainEventSubscriber } from "contexts/shared/domain/DomainEventSubscriber.js";
 import { DependencyInjection } from "contexts/shared/infrastructure/DependencyInjection.js";
-import { DeleteCursor } from "contexts/text/cursor/application/DeleteCursor.js";
-import { MoveCursorDown } from "contexts/text/cursor/application/MoveCursorDown.js";
-import { MoveCursorEndOfFile } from "contexts/text/cursor/application/MoveCursorEndOfFile.js";
-import { MoveCursorEndOfLine } from "contexts/text/cursor/application/MoveCursorEndOfLine.js";
-import { MoveCursorLeft } from "contexts/text/cursor/application/MoveCursorLeft.js";
-import { MoveCursorRight } from "contexts/text/cursor/application/MoveCursorRight.js";
-import { MoveCursorStartOfFile } from "contexts/text/cursor/application/MoveCursorStartOfFile.js";
-import { MoveCursorStartOfLine } from "contexts/text/cursor/application/MoveCursorStartOfLine.js";
-import { MoveCursorUp } from "contexts/text/cursor/application/MoveCursorUp.js";
-import { ReturnCursor } from "contexts/text/cursor/application/ReturnCursor.js";
-import { WriteCursor } from "contexts/text/cursor/application/WriteCursor.js";
-import { PersistBuffer } from "contexts/text/file/application/PersistBuffer.js";
-import { VisitFile } from "contexts/text/file/application/VisitFile.js";
-import { randomUUID } from "node:crypto";
 
 export interface Key {
   name: string;
@@ -49,84 +36,42 @@ export const DispatchBindingOnKeyboardEvent =
       return keyStr;
     };
 
-    const di = DependencyInjection();
-
     return {
       async on(domainEvent: KeyboardEvent) {
+        const di = DependencyInjection();
         const key = keyToStr(domainEvent.attributes as unknown as Key);
 
-        switch (key) {
-          case "Down":
-            await di.get<MoveCursorDown>("text.cursor.moveCursorDown")();
-            break;
-          case "Up":
-            await di.get<MoveCursorUp>("text.cursor.moveCursorUp")();
-            break;
-          case "Left":
-            await di.get<MoveCursorLeft>("text.cursor.moveCursorLeft")();
-            break;
-          case "Right":
-            await di.get<MoveCursorRight>("text.cursor.moveCursorRight")();
-            break;
-          case "Home":
-            await di.get<MoveCursorStartOfLine>(
-              "text.cursor.moveCursorStartOfLine"
-            )();
-            break;
-          case "End":
-            await di.get<MoveCursorEndOfLine>(
-              "text.cursor.moveCursorEndOfLine"
-            )();
-            break;
-          case "C-Home":
-            await di.get<MoveCursorStartOfFile>(
-              "text.cursor.moveCursorStartOfFile"
-            )();
-            break;
-          case "C-End":
-            await di.get<MoveCursorEndOfFile>(
-              "text.cursor.moveCursorEndOfFile"
-            )();
-            break;
-          case "Delete":
-            await di.get<DeleteCursor>("text.cursor.deleteCursor")();
-            break;
-          case "Backspace": {
-            if (!(await di.get<MoveCursorLeft>("text.cursor.moveCursorLeft")()))
+        const mode = TextMode;
+        const bindings = [mode.bindings[key] || mode.bindings.Default].flat();
+
+        for (const binding of bindings) {
+          let action = null;
+          let args: unknown[] = [];
+
+          switch (typeof binding) {
+            case "string":
+              action = di.get(binding.slice(1));
+              args = [];
               break;
-            di.get<DeleteCursor>("text.cursor.deleteCursor")();
+            case "object":
+              if (typeof binding.action === "string") {
+                action = di.get(binding.action.slice(1));
+              } else {
+                action = binding.action;
+              }
+              args =
+                binding.args?.map((arg) =>
+                  typeof arg === "string" ? arg : arg(key)
+                ) || [];
+              break;
+            default:
+              throw new Error("Invalid binding type");
+          }
+
+          const result = await action(...args);
+          if (!result) {
             break;
           }
-          case "Return":
-            if (!(await di.get<ReturnCursor>("text.cursor.returnCursor")()))
-              break;
-            if (!(await di.get<MoveCursorDown>("text.cursor.moveCursorDown")()))
-              break;
-            await di.get<MoveCursorStartOfLine>(
-              "text.cursor.moveCursorStartOfLine"
-            )();
-            break;
-          case "Space":
-            if (!(await di.get<WriteCursor>("text.cursor.writeCursor")(" ")))
-              break;
-            await di.get<MoveCursorRight>("text.cursor.moveCursorRight")();
-            break;
-          case "C-o":
-            await di.get<VisitFile>("text.file.visitFile")(
-              randomUUID(),
-              "/home/javier/workspace/xk/quasar/biome.json"
-            );
-            break;
-          case "C-s":
-            await di.get<PersistBuffer>("text.file.persistBuffer")();
-            break;
-          default:
-            if (key.length > 1) break;
-
-            if (!(await di.get<WriteCursor>("text.cursor.writeCursor")(key)))
-              break;
-            await di.get<MoveCursorRight>("text.cursor.moveCursorRight")();
-            break;
         }
       },
       subscribedTo: () => events,

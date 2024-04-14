@@ -15,6 +15,10 @@ export const MoveCursorLeft = (
 
     const position = buffer.cursor.getPosition();
 
+    if (buffer.atEndOfLine()) {
+      position.x = buffer.lineLenght(position.y);
+    }
+
     if (buffer.atBeginningOfLine()) {
       position.y = position.y - 1;
       position.x = buffer.lineLenght(position.y);
