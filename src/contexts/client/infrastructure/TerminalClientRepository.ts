@@ -24,6 +24,9 @@ export const TerminalClientRepository = (): ClientRepository => {
   const clearScreen = () => `\x1b[2J\x1b[3J${setCursor(0, 0)}`;
 
   const setCursor = (y: number, x: number) => `\x1b[${y};${x}H`;
+  const saveCursorPos = () => "\x1b[s";
+  const restoreCursorPos = () => "\x1b[u";
+
   const clearLine = () => "\x1b[K";
 
   const setColors = () => `\x1b[48;5;${backgroundColor}m`;
@@ -138,10 +141,13 @@ export const TerminalClientRepository = (): ClientRepository => {
 
       let cmd = "";
 
+      cmd += saveCursorPos();
       cmd += setCursor(rows + 2, 0);
 
       cmd += messageBar(message);
+
       cmd += clearAll();
+      cmd += restoreCursorPos();
 
       process.stdout.write(cmd);
     },
