@@ -12,7 +12,9 @@ export const ShowMessage = (
     eventBus.publish([
       new ClientMessageEvent({
         aggregateId: "message",
-        attributes: {},
+        attributes: {
+          message,
+        },
       }),
     ]);
   };

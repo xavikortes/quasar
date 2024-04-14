@@ -1,6 +1,8 @@
 import { DispatchBindingOnKeyboardEvent } from "contexts/client/application/DispatchBindingOnKeyboardEvent.js";
 import { DrawContent } from "contexts/client/application/DrawContent.js";
 import { DrawContentOnBufferUpdated } from "contexts/client/application/DrawContentOnBufferUpdated.js";
+import { DrawMessage } from "contexts/client/application/DrawMessage.js";
+import { DrawMessageOnClientMessage } from "contexts/client/application/DrawMessageOnClientMessage.js";
 import { InitClient } from "contexts/client/application/InitClient.js";
 import { InitClientOnAppLaunched } from "contexts/client/application/InitClientOnAppLaunched.js";
 import { ShowMessage } from "contexts/client/application/ShowMessage.js";
@@ -13,7 +15,6 @@ const clientInfrastructure = {
   },
   "app.client.repository": {
     fn: TerminalClientRepository,
-    args: ["@app.client.message"],
   },
 };
 
@@ -24,7 +25,11 @@ const clientUseCases = {
   },
   "app.client.contentDrawer": {
     fn: DrawContent,
-    args: ["@app.client.repository"],
+    args: ["@app.client.repository", "@app.client.message"],
+  },
+  "app.client.messageDrawer": {
+    fn: DrawMessage,
+    args: ["@app.client.repository", "@app.client.message"],
   },
   "app.client.showMessage": {
     fn: ShowMessage,
@@ -36,6 +41,11 @@ const clientSubscribers = {
   "app.client.InitClientOnAppLaunched": {
     fn: InitClientOnAppLaunched,
     args: ["@app.client.clientInitializer"],
+    tags: ["eventSubscriber"],
+  },
+  "app.client.DrawMessageOnClientMessage": {
+    fn: DrawMessageOnClientMessage,
+    args: ["@app.client.messageDrawer"],
     tags: ["eventSubscriber"],
   },
   "app.client.DrawContentOnBufferUpdated": {

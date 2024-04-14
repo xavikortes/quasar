@@ -1,9 +1,9 @@
-import { ConsoleLogger } from "contexts/shared/infrastructure/ConsoleLogger.js";
+import { FileLogger } from "contexts/shared/infrastructure/FileLogger.js";
 import { InMemoryAsyncEventBus } from "contexts/shared/infrastructure/InMemoryAsyncEventBus.js";
 
 const sharedInfrastructure = {
   "app.shared.logger": {
-    fn: ConsoleLogger,
+    fn: FileLogger,
   },
   "app.shared.eventBus": {
     fn: InMemoryAsyncEventBus,

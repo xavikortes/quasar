@@ -1,13 +1,11 @@
 import { Position } from "contexts/shared/domain/Position.js";
 import { emitKeypressEvents } from "node:readline";
 import { ClientRepository } from "../domain/ClientRepository.js";
-import { ClientMessageRepository } from "./ClientMessageRepository.js";
 
-export const TerminalClientRepository = (
-  messageRepository: ClientMessageRepository
-): ClientRepository => {
+export const TerminalClientRepository = (): ClientRepository => {
   const appName = "QuasarEditor";
   const backgroundColor = 237;
+  const messageForegroundColor = 63;
 
   const init = async () => {
     emitKeypressEvents(process.stdin);
@@ -29,6 +27,7 @@ export const TerminalClientRepository = (
   const clearLine = () => "\x1b[K";
 
   const setColors = () => `\x1b[48;5;${backgroundColor}m`;
+  const setMessageColors = () => `\x1b[38;5;${messageForegroundColor}m`;
   const invertColors = () => "\x1b[7m";
 
   const bold = () => "\x1b[1m";
@@ -82,21 +81,33 @@ export const TerminalClientRepository = (
     return statusMessage.padEnd(columns + length, " ");
   };
 
-  const messageBar = () => {
+  const messageBar = (message: string) => {
     const { columns } = getSize();
 
-    const message = messageRepository.getMessage();
+    let showMessage = "";
+    let length = 0;
 
-    const content = message.padEnd(columns, " ");
+    const add = (m: string, isCmd = false) => {
+      showMessage += m;
+      if (isCmd) length += m.length;
+    };
 
-    messageRepository.clear();
+    add(setColors(), true);
+    add(setMessageColors(), true);
+    add(" ");
+    add(message);
 
-    return content;
+    return showMessage.padEnd(columns + length, " ");
   };
 
   return {
     init,
-    draw: async (showName: string, content: string[], position: Position) => {
+    draw: async (
+      showName: string,
+      content: string[],
+      position: Position,
+      message: string
+    ) => {
       let cmd = "";
 
       cmd += clearScreen();
@@ -108,8 +119,7 @@ export const TerminalClientRepository = (
       cmd += statusBar(showName, position);
 
       cmd += clearAll();
-      cmd += setColors();
-      cmd += messageBar();
+      cmd += messageBar(message);
 
       cmd += clearAll();
 
@@ -120,6 +130,18 @@ export const TerminalClientRepository = (
         Math.min(position.y, content.length) - 0 + 1,
         Math.min(position.x, lineSize) - 0 + 1
       );
+
+      process.stdout.write(cmd);
+    },
+    drawMessage: async (message: string) => {
+      const { rows } = getSize();
+
+      let cmd = "";
+
+      cmd += setCursor(rows + 2, 0);
+
+      cmd += messageBar(message);
+      cmd += clearAll();
 
       process.stdout.write(cmd);
     },

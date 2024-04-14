@@ -10,7 +10,6 @@ export const InMemoryAsyncEventBus = (logger: Logger): EventBus => {
   return {
     publish: async (events: DomainEvent[]): Promise<void> => {
       for (const event of events) {
-        // logger.info(`Event published: ${event.eventName} ${event.attributes}`);
         const subs = subscribers.get(event.eventName);
 
         for (const subscriber of subs ?? []) {
