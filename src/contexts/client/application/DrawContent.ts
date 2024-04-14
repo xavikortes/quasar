@@ -15,9 +15,10 @@ export const DrawContent = (
     const name = buffer.showName();
     const content = buffer.content.value;
     const position = buffer.cursor.getPosition();
+    const offset = buffer.cursor.getOffset();
     const message = messageRepository.getMessage();
 
-    await repository.draw(name, content, position, message);
+    await repository.draw(name, content, position, offset, message);
 
     messageRepository.clear();
   };

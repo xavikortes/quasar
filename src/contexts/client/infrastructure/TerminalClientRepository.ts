@@ -42,17 +42,41 @@ export const TerminalClientRepository = (): ClientRepository => {
     rows: process.stdout.rows - 2,
   });
 
-  const draw = (content: string[]) => {
+  const getOffset = (position: Position, lastOffset: Position) => {
+    const { rows, columns } = getSize();
+    const { x, y } = position;
+
+    const offset = lastOffset;
+
+    if (y >= rows + lastOffset.y) {
+      offset.y = y - rows + 1;
+    } else if (y < lastOffset.y) {
+      offset.y = y;
+    }
+
+    if (x >= columns + lastOffset.x) {
+      offset.x = x - columns + 1;
+    } else if (x < lastOffset.x) {
+      offset.x = x;
+    }
+
+    return offset;
+  };
+
+  const draw = (content: string[], offset: Position) => {
+    const { rows, columns } = getSize();
+
+    const showedContent = content.slice(offset.y, offset.y + rows);
+
     let cmd = "";
 
-    for (const line of content) {
-      cmd += line;
+    for (const line of showedContent) {
+      cmd += line.slice(offset.x, offset.x + columns);
       cmd += clearLine();
       cmd += "\n";
     }
 
-    const size = getSize();
-    for (let i = 0; i < size.rows - content.length; i++) {
+    for (let i = 0; i < rows - showedContent.length; i++) {
       cmd += clearLine();
       cmd += "\n";
     }
@@ -109,14 +133,17 @@ export const TerminalClientRepository = (): ClientRepository => {
       showName: string,
       content: string[],
       position: Position,
+      offset: Position,
       message: string
     ) => {
       let cmd = "";
 
+      const newOffset = getOffset(position, offset);
+
       cmd += clearScreen();
 
       cmd += setColors();
-      cmd += draw(content);
+      cmd += draw(content, newOffset);
 
       cmd += invertColors();
       cmd += statusBar(showName, position);
@@ -130,8 +157,8 @@ export const TerminalClientRepository = (): ClientRepository => {
 
       // -0 === offset
       cmd += setCursor(
-        Math.min(position.y, content.length) - 0 + 1,
-        Math.min(position.x, lineSize) - 0 + 1
+        Math.min(position.y, content.length) - newOffset.y + 1,
+        Math.min(position.x, lineSize) - newOffset.x + 1
       );
 
       process.stdout.write(cmd);

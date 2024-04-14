@@ -6,6 +6,7 @@ export interface ClientRepository {
     showName: string,
     content: string[],
     pos: Position,
+    offset: Position,
     message: string
   ) => Promise<void>;
   drawMessage: (message: string) => Promise<void>;
